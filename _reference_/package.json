@@ -9,7 +9,8 @@
     "create-local": "graph create --node http://localhost:8020/ this-username-is-taken/reference-subgraph",
     "remove-local": "graph remove --node http://localhost:8020/ this-username-is-taken/reference-subgraph",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 this-username-is-taken/reference-subgraph",
-    "prepare": "mustache ./config/default.json subgraph.template.yaml > subgraph.yaml",
+    "prepare": "",
+    "prepare:default": "mustache ./config/default.json subgraph.template.yaml > subgraph.yaml",
     "prepare:prices": "mustache ./config/priceOracleABIs.json subgraph.template.yaml > subgraph.yaml"
   },
   "dependencies": {
