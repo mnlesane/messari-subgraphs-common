@@ -6,9 +6,13 @@ const fse = require('fs-extra');
 const yaml = require('js-yaml');
 const directoryTree = require('directory-tree');
 
+var cmds = ["price-oracle","abis","common","mappings","ethereum-abis","subgraph-manifest","schema","package-cfg"];
+var appRoot = process.env.PWD;
+var modRoot = path.dirname(__dirname);
+var refRoot = modRoot+"/_reference_";
+
 const run = async argv => {
     var args = process.argv.slice(2);
-    var cmds = ["price-oracle","abis","common","mappings"];
     var cmd = args.shift();
     switch (cmd) {
       case 'install':
@@ -34,11 +38,18 @@ const run = async argv => {
 	    install(element)
 	})
 	break;
+      default:
+        dispUsage();
+        break;
     }
 }
 
+function dispUsage() {
+	console.error("Usage: mscutil ["+cmds.join(" | ")+"]")
+}
+
 function cprp(src,dest) {
-    var res = fse.copySync(src, dest, {overwrite:true}, function (err) {
+    var res = fs.symlink(src, dest, function (err) {
 	if(err) {
 	    console.error(err);
 	    return false;
@@ -50,17 +61,39 @@ function cprp(src,dest) {
     return res;
 }
 
-function dir_exists(dir) {
+function installDefaultManifest() {
+  fse.copySync(
+    refRoot+"/subgraph.yaml",
+    appRoot+"/subgraph.yaml",
+  )
 }
 
-function install(submod) {
-    var appRoot = process.env.PWD;
-    var modRoot = path.dirname(__dirname);
-    var refRoot = modRoot+"/_reference_";
-    
+function installDefaultSchema() {
+  fse.copySync(
+    refRoot+"/schema.graphql",
+    appRoot+"/schema.graphql",
+  )
+}
+
+function installDefaultPackage() {
+  fse.copySync(
+    refRoot+"/package.json",
+    appRoot+"/package.json",
+  )
+  // Consider running installation automatically.
+}
+
+function install(submod) {    
     switch (submod) {
 	//TODO refactor and confirm if files or folders will be overwritten
-    case 'price-oracle':
+      case 'subgraph-manifest':
+	try {
+		fs.readFileSync(appRoot+'/subgraph.yaml')
+	} catch (e) {
+        	installDefaultManifest();
+	}
+        break;
+      case 'price-oracle':
 	// ./abis/Prices/
 	if (!fse.existsSync(appRoot+"/abis/")) {
 	    fse.mkdirSync(appRoot+"/abis/");
@@ -93,16 +126,13 @@ function install(submod) {
 		}())
 		var output = yaml.dump(y); // TODO warning: no comments afterward.
 		fs.closeSync(fs.openSync(appRoot+'/subgraph.yaml', "w"));
-		fs.writeFileSync(appRoot+'/subgraph.yaml',output,function(err) { console.log(err); });
+		fs.writeFileSync(appRoot+'/subgraph.yaml',output,function(err) { console.error(err); });
 	} else {
 		//Use the default.
-		fse.copySync(
-		  refRoot+"/subgraph.yaml",
-		  appRoot+"/subgraph.yaml"
-		)
+		installDefaultManifest();
 	}
 	break;
-    case 'abis':
+      case 'abis':
         // ./abis/*.json
 	if (!fs.existsSync(appRoot+"/abis/")) {
 	    fs.mkdirSync(appRoot+"/abis/");
@@ -110,35 +140,64 @@ function install(submod) {
 	var tree = directoryTree(refRoot+'/abis',{extensions:/\.json/});
 	tree.children.forEach(file => function() {
 	  if(file.children) return
-	  fse.copySync(file.path,appRoot+'/abis/'+file.name);
+	  cprp(file.path,appRoot+'/abis/'+file.name);
 	}());
 	break;
-    case 'common':
+      case 'common':
 	if (!fs.existsSync(appRoot+"/src/")) {
 	    fs.mkdirSync(appRoot+"/src/");
 	}
         // ./src/common/
 	cprp(refRoot+"/src/common/",appRoot+"/src/common");
 	break;
-    case 'mappings':
+      case 'mappings':
         // ./src/common/mappings
 	if (!fs.existsSync(appRoot+"/src/")) {
 	    fs.mkdirSync(appRoot+"/src/");
 	}
 	cprp(refRoot+"/src/mappings",appRoot+"/src/mappings");
 	break;
+      case 'ethereum-abis':
+	if (!fse.existsSync(appRoot+"/abis/")) {
+	    fse.mkdirSync(appRoot+"/abis/");
+	}
+	cprp(refRoot+"/abis/Ethereum/",appRoot+"/abis/Ethereum");
+        break;
+      case 'schema':
+	try {
+		y = yaml.load(fs.readFileSync(appRoot+'/schema.graphql'))
+	} catch (e) {
+		y = null;
+	}
+	if(y) {
+	  // Ostensibly already exists.
+	} else {
+		//Use the default.
+		installDefaultSchema();
+	}
+      case 'package-cfg':
+	try {
+		y = yaml.load(fs.readFileSync(appRoot+'/package.json'))
+	} catch (e) {
+		y = null;
+	}
+	if(y) {
+	  // Ostensibly already exists.
+	} else {
+		//Use the default.
+		installDefaultPackage();
+	}
+      default:
+        dispUsage();
+        break;
     }
 }
 
 function remove(submod) {
     // Always ask for a confirmation before proceeding.  Later, check git.
-    var appRoot = process.env.PWD;
-    var modRoot = path.dirname(__dirname);
-    var refRoot = modRoot+"/_reference_";
-    
     switch (submod) {
 	//TODO refactor and confirm if files or folders will be overwritten
-    case 'price-oracle':
+      case 'price-oracle':
 	// ./abis/Prices/
 	fse.removeSync(appRoot+"/abis/Prices", { recursive: true, force: true });
 	// ./src/prices/
@@ -163,12 +222,12 @@ function remove(submod) {
 		}())
 		var output = yaml.dump(y); // TODO warning: no comments afterward.
 		fs.closeSync(fs.openSync(appRoot+'/subgraph.yaml', "w"));
-		fs.writeFileSync(appRoot+'/subgraph.yaml',output,function(err) { console.log(err); });
+		fs.writeFileSync(appRoot+'/subgraph.yaml',output,function(err) { console.error(err); });
 	} else {
 		//???
 	}
 	break;
-    case 'abis':
+      case 'abis':
         // ./abis/*.json
 	var tree = directoryTree(refRoot+'/abis',{extensions:/\.json/});
 	tree.children.forEach(file => function() {
@@ -177,14 +236,26 @@ function remove(submod) {
 	}());
 	break;
 	break;
-    case 'common':
+      case 'common':
         // ./src/common/
 	fse.removeSync(appRoot+"/src/common", { recursive: true, force: true });
 	break;
-    case 'mappings':
+      case 'mappings':
         // ./src/mappings
 	fse.removeSync(appRoot+"/src/mappings", { recursive: true, force: true });
 	break;
+      case 'ethereum-abis':
+	fse.removeSync(appRoot+"/src/abis/Ethereum", { recursive: true, force: true });
+	break;
+      case 'schema':
+	fse.removeSync(appRoot+"/schema.graphql", { recursive: true, force: true });
+	break;
+      case 'package-cfg':
+	fse.removeSync(appRoot+"/package.json", { recursive: true, force: true });
+	break;
+      default:
+        dispUsage();
+        break;
     }
 }
 
