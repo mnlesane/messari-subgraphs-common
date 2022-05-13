@@ -6,6 +6,8 @@ import { updateFinancials, updateUsageMetrics, updatePoolMetrics } from "../comm
 import { getOrCreateDexAmm } from "../common/getters";
 import { getRewardsPerDay, RewardIntervalType } from "../common/rewards";
 
+import { INT_ONE, BIGDECIMAL_ONE } from "../common/utils/constants";
+
 // To improve readability and consistency, it is recommended that you put all
 // handlers in this file, and create helper functions to handle specific events
 
@@ -37,7 +39,7 @@ export function handleBurn(event: Burn): void {
   updatePoolMetrics(event);
 
   // INT_ONE and BLOCK for reward amount and interval type are arbitrary since uniswap does not have reward emissions
-  getRewardsPerDay(event.block.timestamp, event.block.number, INT_ONE, RewardIntervalType.BLOCK)
+  getRewardsPerDay(event.block.timestamp, event.block.number, BIGDECIMAL_ONE, RewardIntervalType.BLOCK)
 }
 
 export function handleSwap(event: Swap): void {

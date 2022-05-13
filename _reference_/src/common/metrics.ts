@@ -1,6 +1,6 @@
 import { BigDecimal, Address, ethereum } from "@graphprotocol/graph-ts";
 import { Account, DailyActiveAccount, UsageMetricsDailySnapshot } from "../../generated/schema";
-import { FACTORY_ADDRESS, SECONDS_PER_DAY } from "./constants";
+import { FACTORY_ADDRESS, SECONDS_PER_DAY } from "./utils/constants";
 import { getOrCreateDexAmm, getOrCreatePoolDailySnapshot, getOrCreateUsageMetricSnapshot } from "./getters";
 
 // These are meant more as boilerplates that'll be filled out depending on the

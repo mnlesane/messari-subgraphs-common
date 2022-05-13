@@ -45,7 +45,7 @@ const run = async argv => {
 }
 
 function dispUsage() {
-	console.error("Usage: mscutil ["+cmds.join(" | ")+"]")
+	console.error("Usage: mscutil [install | remove] ["+cmds.join(" | ")+"]\n       mscutil [install-all | remove-all]")
 }
 
 function cprp(src,dest) {

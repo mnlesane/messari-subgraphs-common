@@ -3,7 +3,7 @@ import { BigInt, BigDecimal, Address, store, ethereum } from "@graphprotocol/gra
 import { DexAmmProtocol, LiquidityPool, Token } from "../../generated/schema";
 import { Pair as PairTemplate } from "../../generated/templates";
 import { Factory as FactoryContract } from "../../generated/templates/Pair/Factory";
-import { FACTORY_ADDRESS } from "../common/constants";
+import { FACTORY_ADDRESS } from "../common/utils/constants";
 
 export let factoryContract = FactoryContract.bind(Address.fromString(FACTORY_ADDRESS));
 

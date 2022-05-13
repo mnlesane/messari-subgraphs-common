@@ -16,7 +16,7 @@ import {
   FACTORY_ADDRESS,
   ProtocolType,
   SECONDS_PER_DAY,
-} from "../common/constants";
+} from "../common/utils/constants";
 
 export function getOrCreateToken(tokenAddress: Address): Token {
   let token = Token.load(tokenAddress.toHexString());

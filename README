@@ -1,0 +1,44 @@
+NAME
+  mscutil - Subgraph Utility Library
+
+SYNOPSIS
+  mscutil [ install | remove ] [ component ]
+  mscutil [ install-all | remove-all ]
+
+DESCRIPTION
+  Allows for installation or removal of components from the reference generic subgraph in any subgraph's codebase.
+  
+  install
+    Adds the component.  Files and folders are symlinked, while relevant ABI paths are programmatically inserted into subgraph manifests.
+    
+  remove
+    Removes the component.  Symlinks are removed, while relevant ABI paths are removed from subgraph manifests.
+      
+  install-all
+    Adds all available components.
+    
+  remove-all
+    Removes all available components.
+    
+  Components:
+    price-oracle
+      Handles the linking and unlinking of ./abis/Prices and the insertion/removal all .json files in ./abis/Prices into ./subgraph.yaml.
+    
+    abis
+      Handles the linking and unlinking of ./abis/*.json
+      
+    common
+      Handles the linking and unlinking of ./src/common
+     
+    mappings
+      Handles the linking and unlinking of ./src/mappings
+      
+    ethereum-abis
+    
+    subgraph-manifest
+  
+  Recommended Installation Steps:
+  * mscutil install-all
+  * npm install
+  * yarn codegen
+  * yarn build
