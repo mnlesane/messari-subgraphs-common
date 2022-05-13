@@ -34,8 +34,16 @@ DESCRIPTION
       Handles the linking and unlinking of ./src/mappings
       
     ethereum-abis
-    
+      Handles the linking and unlinking of ./abis/Ethereum
+
     subgraph-manifest
+      Installs subgraph.yaml if it does not already exist.
+
+    schema
+      Installs schema.graphql if it does not already exist.      
+
+    package-cfg
+      Installs package.json if it does not already exist.
   
   Recommended Installation Steps:
   * mscutil install-all
